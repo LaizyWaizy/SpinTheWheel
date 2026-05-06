@@ -1,0 +1,28 @@
+# Local/editor noise
+.vscode/
+.idea/
+*.log
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Node/dependency folders if this project grows later
+node_modules/
+
+# Environment/secrets
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+
+# OS files
+Thumbs.db
+.DS_Store
+
+dist/
+build/

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinematic - Movie Picker</title>
+    <meta name="description" content="A simple, fast, and random movie picker app.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="background-globes">
+        <div class="globe globe-1"></div>
+        <div class="globe globe-2"></div>
+        <div class="globe globe-3"></div>
+    </div>
+    
+    <div class="top-bar">
+        <span id="library-count" class="library-count">Loading...</span>
+        <button id="search-btn" class="icon-btn" title="Search Library">🔍</button>
+        <button id="import-btn" class="text-btn">+ Add Movies</button>
+        <button id="export-btn" class="text-btn">Export</button>
+        <button id="letterboxd-btn" class="text-btn">Letterboxd</button>
+        <button id="calibrate-btn" class="text-btn">Calibrate</button>
+        <button id="settings-btn" class="icon-btn" title="API Settings">⚙</button>
+    </div>
+
+    <main class="app-container">
+        <header>
+            <h1>Cinematic</h1>
+            <p>Find your next watch through random discovery.</p>
+        </header>
+
+        <div class="mood-filters">
+            <span class="label" style="margin-bottom: 0;">How are you feeling?</span>
+            <div class="mood-input-container">
+                <input type="text" id="mood-text-input" placeholder='e.g. "I want something mind blowing..."' autocomplete="off" />
+                <button id="mood-submit-btn" class="primary-btn" style="width:auto; padding:0.8rem 1.5rem;">Sense</button>
+                <button id="mood-clear-btn" class="secondary-btn" style="width:auto; padding:0.8rem 1.5rem;">Reset</button>
+            </div>
+            <div class="rating-filter">
+                <label for="rating-filter-select" class="label">Movie rating</label>
+                <select id="rating-filter-select" aria-label="Movie rating filter">
+                    <option value="any">Any rating</option>
+                    <option value="9">9.0 and up</option>
+                    <option value="8">8.0 and up</option>
+                    <option value="7">7.0 and up</option>
+                    <option value="6">6.0 and up</option>
+                    <option value="5">5.0 and up</option>
+                    <option value="under6">Under 6.0</option>
+                </select>
+            </div>
+            <div id="mood-feedback" class="mood-feedback"></div>
+        </div>
+
+        <section class="spinner-section">
+            <div class="column">
+                <div class="wheel-container">
+                    <div class="wheel-pointer genre-pointer"></div>
+                    <canvas id="genre-wheel-canvas" width="400" height="400"></canvas>
+                </div>
+                <div class="card" id="genre-card">
+                    <span class="label">1. Select a Genre</span>
+                    <h2 id="genre-display">?</h2>
+                    <button id="spin-genre-btn" class="primary-btn">Spin Both Wheels</button>
+                </div>
+            </div>
+
+            <div class="column">
+                <div class="wheel-container">
+                    <div class="wheel-pointer movie-pointer"></div>
+                    <canvas id="movie-wheel-canvas" width="400" height="400"></canvas>
+                </div>
+                <div class="card" id="movie-card">
+                    <span class="label">2. Select a Movie</span>
+                    <h2 id="movie-display">Waiting for Genre...</h2>
+                    <div id="movie-details" class="movie-details hidden">
+                        <img id="movie-poster" src="" alt="Movie Poster" />
+                        <div class="movie-rating-container">
+                            <div class="movie-rating">⭐ <span id="movie-rating-val">8.5</span>/10 <span id="movie-rating-source">Rating</span></div>
+                            <button id="delete-movie-btn" class="sm-btn delete-btn">❌ Mark as Watched</button>
+                        </div>
+                    </div>
+                    <button id="spin-movie-btn" class="secondary-btn" disabled>Re-roll Movie</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Add Movies Modal -->
+    <div id="import-modal" class="modal-overlay hidden">
+        <div class="modal">
+            <button id="close-modal" class="close-btn">&times;</button>
+            <h2>🎬 Add Movies</h2>
+            <p>Paste movie titles below — one per line. They'll be fetched from TMDb when available, categorized by genre, and added to your library instantly.</p>
+            <label for="movie-csv-file">Import Exported CSV</label>
+            <input type="file" id="movie-csv-file" accept=".csv,text/csv" />
+            <button id="process-csv-import-btn" class="secondary-btn">Import CSV Backup</button>
+            <label for="movie-list">Movie Titles (One per line)</label>
+            <textarea id="movie-list" rows="10" placeholder="Closer&#10;Eyes Wide Shut&#10;Portrait of a Lady on Fire&#10;The Handmaiden&#10;Carol"></textarea>
+            <button id="process-import-btn" class="primary-btn">Process &amp; Import</button>
+            <div id="import-status"></div>
+        </div>
+    </div>
+
+    <!-- Letterboxd Modal -->
+    <div id="letterboxd-modal" class="modal-overlay hidden">
+        <div class="modal">
+            <button id="close-letterboxd" class="close-btn">&times;</button>
+            <h2>Letterboxd Watched Cleanup</h2>
+            <p>Removes titles from your wheel if they appear in watched.csv, diary.csv, or ratings.csv in this app folder.</p>
+            <button id="process-letterboxd-btn" class="primary-btn">Remove Watched Movies</button>
+            <div id="letterboxd-status"></div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal-overlay hidden">
+        <div class="modal">
+            <button id="close-settings" class="close-btn">&times;</button>
+            <h2>⚙ API Settings</h2>
+            <p>Keys are saved in your browser and only need to be entered once.</p>
+            <label for="tmdb-key">TMDb API Key or Read Access Token</label>
+            <input type="password" id="tmdb-key" placeholder="Paste TMDb API key or token" />
+            <label for="api-key">OMDB API Key <a href="https://www.omdbapi.com/apikey.aspx" target="_blank">(Get Free Key)</a></label>
+            <input type="text" id="api-key" placeholder="Enter OMDB API Key" />
+            <label for="ai-key">AI API Key <span style="font-size:0.8em;opacity:0.7">(Gemini AIza... or OpenAI sk-...)</span></label>
+            <input type="password" id="ai-key" placeholder="AIza... or sk-..." />
+            <button id="save-settings-btn" class="primary-btn">Save Settings</button>
+            <div id="settings-status"></div>
+        </div>
+    </div>
+
+    <!-- Calibration Modal -->
+    <div id="calibration-modal" class="modal-overlay hidden">
+        <div class="modal">
+            <button id="close-calibration" class="close-btn">&times;</button>
+            <h2>Rating Calibration</h2>
+            <p>Scan your library once to fill in missing ratings. After this, the rating dropdown can filter from saved data only.</p>
+            <div class="calibration-summary">
+                <span id="calibration-count">Checking library...</span>
+                <span id="calibration-percent">0%</span>
+            </div>
+            <div class="calibration-progress">
+                <div id="calibration-progress-bar"></div>
+            </div>
+            <button id="start-calibration-btn" class="primary-btn">Start Calibration</button>
+            <div id="calibration-status"></div>
+        </div>
+    </div>
+
+    <!-- Search Modal -->
+    <div id="search-modal" class="modal-overlay hidden">
+        <div class="modal">
+            <button id="close-search-modal" class="close-btn">&times;</button>
+            <h2>🔍 Search Library</h2>
+            <input type="text" id="search-input" placeholder="Type a movie title..." autocomplete="off" />
+            <div id="search-results" class="search-results">
+                <!-- Search items will inject here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Movie Info Modal -->
+    <div id="movie-info-modal" class="modal-overlay hidden">
+        <div class="modal" style="display: flex; gap: 1.5rem; max-width: 600px; text-align: left;">
+            <button id="close-movie-info" class="close-btn">&times;</button>
+            <img id="info-poster" src="" style="width: 150px; height: 225px; border-radius: 8px; object-fit: cover; display: none;" />
+            <div class="info-content" style="flex: 1; display: flex; flex-direction: column;">
+                <h2 id="info-title" style="margin-bottom: 0.2rem; font-size: 1.5rem; line-height: 1.2;">Loading...</h2>
+                <div style="font-size: 0.85rem; color: var(--accent-1); margin-bottom: 0.8rem;" id="info-meta"></div>
+                <p id="info-plot" style="font-size: 0.95rem; line-height: 1.4; color: rgba(255,255,255,0.8); margin-bottom: 1rem;">Fetching plot...</p>
+                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: auto;">
+                    <strong>Director:</strong> <span id="info-director"></span><br>
+                    <strong>Actors:</strong> <span id="info-actors"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="seed.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
