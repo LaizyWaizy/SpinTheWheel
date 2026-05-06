@@ -20,9 +20,18 @@ node_modules/
 *.p12
 *.pfx
 
+# Personal Letterboxd exports
+diary.csv
+ratings.csv
+watched.csv
+
 # OS files
 Thumbs.db
 .DS_Store
 
 dist/
 build/
+
+*.private.csv
+*.personal.csv
+*.sensitive.csv
