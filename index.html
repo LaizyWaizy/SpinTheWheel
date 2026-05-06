@@ -17,6 +17,11 @@
         <div class="globe globe-3"></div>
     </div>
     
+    <nav class="site-tabs" aria-label="Main sections">
+        <button id="movies-tab" class="tab-btn active" type="button" aria-controls="movies-page">Movies</button>
+        <button id="shows-tab" class="tab-btn" type="button" aria-controls="shows-page">Shows</button>
+    </nav>
+
     <div class="top-bar">
         <span id="library-count" class="library-count">Loading...</span>
         <button id="search-btn" class="icon-btn" title="Search Library">🔍</button>
@@ -24,10 +29,10 @@
         <button id="export-btn" class="text-btn">Export</button>
         <button id="letterboxd-btn" class="text-btn">Letterboxd</button>
         <button id="calibrate-btn" class="text-btn">Calibrate</button>
-        <button id="settings-btn" class="icon-btn" title="API Settings">⚙</button>
+        <button id="auth-btn" class="text-btn">Login</button>
     </div>
 
-    <main class="app-container">
+    <main id="movies-page" class="app-container page active-page">
         <header>
             <h1>Cinematic</h1>
             <p>Find your next watch through random discovery.</p>
@@ -89,6 +94,90 @@
         </section>
     </main>
 
+    <main id="shows-page" class="app-container page hidden">
+        <header>
+            <h1>Shows</h1>
+            <p>Spin for your next series, season binge, or background obsession.</p>
+        </header>
+
+        <section class="shows-toolbar" aria-label="Show tools">
+            <div>
+                <span id="show-library-count" class="library-count">Loading...</span>
+            </div>
+            <div class="shows-actions">
+                <button id="search-show-btn" class="text-btn">Search Shows</button>
+                <button id="import-show-btn" class="text-btn">+ Add Shows</button>
+                <button id="export-show-btn" class="text-btn">Export Shows</button>
+            </div>
+        </section>
+
+        <div class="mood-filters">
+            <span class="label" style="margin-bottom: 0;">How are you feeling?</span>
+            <div class="mood-input-container">
+                <input type="text" id="show-mood-text-input" placeholder='e.g. "I want something mind blowing..."' autocomplete="off" />
+                <button id="show-mood-submit-btn" class="primary-btn" style="width:auto; padding:0.8rem 1.5rem;">Sense</button>
+                <button id="show-mood-clear-btn" class="secondary-btn" style="width:auto; padding:0.8rem 1.5rem;">Reset</button>
+            </div>
+            <div class="rating-filter" style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <label for="show-rating-filter-select" class="label" style="margin-bottom: 0;">Show rating</label>
+                    <select id="show-rating-filter-select" aria-label="Show rating filter">
+                        <option value="any">Any rating</option>
+                        <option value="9">9.0 and up</option>
+                        <option value="8">8.0 and up</option>
+                        <option value="7">7.0 and up</option>
+                        <option value="6">6.0 and up</option>
+                        <option value="under6">Under 6.0</option>
+                    </select>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <label for="show-season-filter-select" class="label" style="margin-bottom: 0;">Seasons</label>
+                    <select id="show-season-filter-select" aria-label="Show season filter">
+                        <option value="any">Any length</option>
+                        <option value="short">Short (1-2 seasons)</option>
+                        <option value="medium">Medium (3-5 seasons)</option>
+                        <option value="long">Long (6+ seasons)</option>
+                    </select>
+                </div>
+            </div>
+            <div id="show-mood-feedback" class="mood-feedback"></div>
+        </div>
+
+        <section class="spinner-section">
+            <div class="column">
+                <div class="wheel-container">
+                    <div class="wheel-pointer show-genre-pointer"></div>
+                    <canvas id="show-genre-wheel-canvas" width="400" height="400"></canvas>
+                </div>
+                <div class="card" id="show-genre-card">
+                    <span class="label">1. Select a Show Genre</span>
+                    <h2 id="show-genre-display">?</h2>
+                    <button id="spin-show-genre-btn" class="primary-btn">Spin Both Wheels</button>
+                </div>
+            </div>
+
+            <div class="column">
+                <div class="wheel-container">
+                    <div class="wheel-pointer show-pointer"></div>
+                    <canvas id="show-wheel-canvas" width="400" height="400"></canvas>
+                </div>
+                <div class="card" id="show-card">
+                    <span class="label">2. Select a Show</span>
+                    <h2 id="show-display">Waiting for Genre...</h2>
+                    <div id="show-details" class="movie-details hidden">
+                        <img id="show-poster" src="" alt="Show Poster" />
+                        <div class="movie-rating-container">
+                            <div class="movie-rating"><span id="show-rating-val">8.5</span>/10 <span id="show-rating-source">Rating</span></div>
+                            <div class="movie-rating" style="font-size: 0.9rem; margin-top: -0.2rem;"><span id="show-seasons-val">?</span> Seasons</div>
+                            <button id="delete-show-btn" class="sm-btn delete-btn">Mark as Watched</button>
+                        </div>
+                    </div>
+                    <button id="spin-show-btn" class="secondary-btn" disabled>Re-roll Show</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
     <!-- Add Movies Modal -->
     <div id="import-modal" class="modal-overlay hidden">
         <div class="modal">
@@ -116,20 +205,44 @@
         </div>
     </div>
 
-    <!-- Settings Modal -->
-    <div id="settings-modal" class="modal-overlay hidden">
+    <!-- Login Modal -->
+    <div id="auth-modal" class="modal-overlay hidden">
         <div class="modal">
-            <button id="close-settings" class="close-btn">&times;</button>
-            <h2>⚙ API Settings</h2>
-            <p>Keys are saved in your browser and only need to be entered once.</p>
-            <label for="tmdb-key">TMDb API Key or Read Access Token</label>
-            <input type="password" id="tmdb-key" placeholder="Paste TMDb API key or token" />
-            <label for="api-key">OMDB API Key <a href="https://www.omdbapi.com/apikey.aspx" target="_blank">(Get Free Key)</a></label>
-            <input type="password" id="api-key" placeholder="Enter OMDB API Key" autocomplete="off" />
-            <label for="ai-key">AI API Key <span style="font-size:0.8em;opacity:0.7">(Gemini AIza... or OpenAI sk-...)</span></label>
-            <input type="password" id="ai-key" placeholder="AIza... or sk-..." />
-            <button id="save-settings-btn" class="primary-btn">Save Settings</button>
-            <div id="settings-status"></div>
+            <button id="close-auth" class="close-btn">&times;</button>
+            <h2 id="auth-title">Login</h2>
+            <p id="auth-copy">Your API keys stay in a private local account on this server, not in browser localStorage.</p>
+            <div id="auth-form">
+                <label for="auth-username">Username</label>
+                <input type="text" id="auth-username" placeholder="username" autocomplete="username" />
+                <label for="auth-password">Password</label>
+                <input type="password" id="auth-password" placeholder="password" autocomplete="current-password" />
+                <div class="auth-actions">
+                    <button id="login-btn" class="primary-btn">Login</button>
+                    <button id="register-btn" class="secondary-btn">Create Account</button>
+                </div>
+            </div>
+            <div id="auth-account-panel" class="auth-account-panel hidden">
+                <div class="account-name" id="auth-account-name">Logged in</div>
+                <p class="account-note" id="settings-user-note">API keys are saved on this local server and only shown here as masked values.</p>
+                <div class="account-settings">
+                    <h3>API Settings</h3>
+                    <label for="tmdb-key">TMDb API Key or Read Access Token</label>
+                    <input type="password" id="tmdb-key" placeholder="Paste TMDb API key or token" />
+                    <label for="api-key">OMDB API Key <a href="https://www.omdbapi.com/apikey.aspx" target="_blank">(Get Free Key)</a></label>
+                    <input type="password" id="api-key" placeholder="Enter OMDB API Key" autocomplete="off" />
+                    <label for="ai-key">AI API Key <span style="font-size:0.8em;opacity:0.7">(Gemini AIza... or OpenAI sk-...)</span></label>
+                    <input type="password" id="ai-key" placeholder="AIza... or sk-..." />
+                    <button id="save-settings-btn" class="primary-btn">Save API Keys</button>
+                    <div id="settings-status"></div>
+                    <h3>Calibration</h3>
+                    <div class="auth-actions">
+                        <button id="account-calibrate-movies-btn" class="secondary-btn">Calibrate Movies</button>
+                        <button id="account-calibrate-shows-btn" class="secondary-btn">Calibrate Shows</button>
+                    </div>
+                </div>
+                <button id="logout-btn" class="secondary-btn">Logout</button>
+            </div>
+            <div id="auth-status"></div>
         </div>
     </div>
 
@@ -151,6 +264,24 @@
         </div>
     </div>
 
+    <!-- Show Calibration Modal -->
+    <div id="show-calibration-modal" class="modal-overlay hidden">
+        <div class="modal">
+            <button id="close-show-calibration" class="close-btn">&times;</button>
+            <h2>Show Calibration</h2>
+            <p>Scan your show library once to retry missing TMDb details, ratings, posters, and genres.</p>
+            <div class="calibration-summary">
+                <span id="show-calibration-count">Checking library...</span>
+                <span id="show-calibration-percent">0%</span>
+            </div>
+            <div class="calibration-progress">
+                <div id="show-calibration-progress-bar"></div>
+            </div>
+            <button id="start-show-calibration-btn" class="primary-btn">Start Show Calibration</button>
+            <div id="show-calibration-status"></div>
+        </div>
+    </div>
+
     <!-- Search Modal -->
     <div id="search-modal" class="modal-overlay hidden">
         <div class="modal">
@@ -160,6 +291,32 @@
             <div id="search-results" class="search-results">
                 <!-- Search items will inject here -->
             </div>
+        </div>
+    </div>
+
+    <!-- Add Shows Modal -->
+    <div id="show-import-modal" class="modal-overlay hidden">
+        <div class="modal">
+            <button id="close-show-modal" class="close-btn">&times;</button>
+            <h2>Add Shows</h2>
+            <p>Paste show names below, one per line. TMDb will add genres, ratings, and posters when your TMDb key is saved.</p>
+            <label for="show-csv-file">Import Exported CSV</label>
+            <input type="file" id="show-csv-file" accept=".csv,text/csv" />
+            <button id="process-show-csv-import-btn" class="secondary-btn">Import CSV Backup</button>
+            <label for="show-list">Show Names (One per line)</label>
+            <textarea id="show-list" rows="10" placeholder="Breaking Bad&#10;Severance&#10;The Bear&#10;Atlanta&#10;Arcane"></textarea>
+            <button id="process-show-import-btn" class="primary-btn">Process &amp; Import</button>
+            <div id="show-import-status"></div>
+        </div>
+    </div>
+
+    <!-- Show Search Modal -->
+    <div id="show-search-modal" class="modal-overlay hidden">
+        <div class="modal">
+            <button id="close-show-search-modal" class="close-btn">&times;</button>
+            <h2>Search Shows</h2>
+            <input type="text" id="show-search-input" placeholder="Type a show name..." autocomplete="off" />
+            <div id="show-search-results" class="search-results"></div>
         </div>
     </div>
 

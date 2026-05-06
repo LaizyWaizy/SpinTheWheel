@@ -1,21 +1,23 @@
 # Cinematic
 
-Cinematic is a simple movie picker app built around a spin-the-wheel idea.
+Cinematic is a simple watch picker website built around a spin-the-wheel idea.
 
-It helps pick what to watch by spinning for a genre and then spinning for a movie. You can add movie data, use example CSV files, filter by mood/rating, and make the decision feel a little less painful when the watchlist is too long.
+It helps pick what to watch by spinning for a genre and then spinning for a movie or show. You can add library data, use example CSV files, filter by mood/rating, and make the decision feel a little less painful when the watchlist is too long.
 
 ## What It Does
 
 - Spins a genre wheel
 - Spins a movie wheel
+- Has separate Movies and Shows tabs
+- Spins a show genre wheel and show wheel
 - Shows movie info and posters when API keys are added
-- Supports importing/exporting movie lists
+- Supports importing/exporting movie and show lists
 - Includes example CSV files for diary, ratings, and watched data
 - Has some AI-assisted mood matching
 
 ## Future Updates
-- Might make it multi purpose for shows/anime
 - Maybe screw around with manga/manhwa etc and link it with MAL or Anilist
+- Add Shows/Anime
 - Login system so you don't have to consistently put the api in there
 - Make this public (HIGH MAYBE)
 

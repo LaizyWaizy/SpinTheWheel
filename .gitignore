@@ -15,6 +15,7 @@ node_modules/
 # Environment/secrets
 .env
 .env.*
+data/
 *.pem
 *.key
 *.p12
